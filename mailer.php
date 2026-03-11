@@ -20,9 +20,9 @@ function mailer ( $to , $subject , $body , $mailUsername , $mailPassword , $mail
     $mail->Port = 465;                // Puerto SMTP
 
     $mail->From = $mailUsername;
-    $mail->FromName = 'Me';
+    $mail->FromName = 'People';
     $mail->addAddress($to);
-//    $mail->addAddress('me@mail.com');
+//    $mail->addAddress('people@appox.ai');
     $mail->isHTML(true);
     $mail->Subject = $subject;
     $mail->Body    = $body;
