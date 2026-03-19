@@ -3,9 +3,7 @@
 # config data
 config.php
 .vscode/sftp.json
-users.json
 
 # local files
-input/
 vendor/
 composer.lock
