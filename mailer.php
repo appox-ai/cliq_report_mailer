@@ -6,7 +6,7 @@ require 'vendor/phpmailer/phpmailer/src/Exception.php';
 require 'vendor/phpmailer/phpmailer/src/PHPMailer.php';
 require 'vendor/phpmailer/phpmailer/src/SMTP.php';
  
-function mailer ( $to , $subject , $body , $mailUsername , $mailPassword , $mailHost ){
+function mailer ( $to , $subject , $body , $mailUsername , $mailPassword , $mailHost , $filename ){
   
   $mail = new PHPMailer(true);
   try {
@@ -27,6 +27,7 @@ function mailer ( $to , $subject , $body , $mailUsername , $mailPassword , $mail
     $mail->Subject = $subject;
     $mail->Body    = $body;
 //  $mail->AltBody = 'This is the body in plain text for non-HTML mail clients';
+    $mail->addAttachment($filename);
 
     $mail->send();
   } catch (Exception $e) {

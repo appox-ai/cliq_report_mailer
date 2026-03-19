@@ -1,6 +1,12 @@
 [
 	{
-		"name":"Jorge",
-		"mail":"jcatano@appox.ai"
+		"name": "Jorge",
+		"mail": "jorge@mail"
+	},
+	{
+		"name": "Lola",  
+		"mail": "lola@mail",
+		"id": 5,
+		"hours_per_day": 4
 	}
 ]
