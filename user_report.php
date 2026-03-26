@@ -10,7 +10,7 @@ $file_name = $current_date . '_cliq_snapshot.csv';
 if (!file_exists('input/' . $file_name)) {
   $subject = "Cliq reports: File not found";
   $bodyMail = "File " . $file_name . " not found.<br>Please check if the file exists in the input folder in order to send the reports to the users.";
-  mailer("support@appox.ai", $subject, $bodyMail, $conf['mailUsername'], $conf['mailPassword'], $conf['mailHost']);
+  mailer("support@appox.ai", $subject, $bodyMail, $conf['mailUsername'], $conf['mailPassword'], $conf['mailHost'],"");
   exit;
 }
   
@@ -179,9 +179,9 @@ foreach ($users as $user) {
       <p>&Agrave; bient&ocirc;t,</p>
       <p>App<b>OX</b> <i>People</i></p>
   </div>";
-  mailer($user->mail, $subject, $bodyMail, $conf['mailUsername'], $conf['mailPassword'], $conf['mailHost']);
+  mailer($user->mail, $subject, $bodyMail, $conf['mailUsername'], $conf['mailPassword'], $conf['mailHost'],"");
 
-  echo "Alert mail sent \n";
+  echo "Alert: mail sent \n";
 
 }
 ?>

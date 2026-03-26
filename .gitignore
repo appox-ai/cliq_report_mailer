@@ -6,4 +6,5 @@ config.php
 
 # local files
 vendor/
+vendor
 composer.lock
