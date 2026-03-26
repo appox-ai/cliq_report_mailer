@@ -7,6 +7,16 @@
 		"name": "Lola",  
 		"mail": "lola@mail",
 		"id": 5,
-		"hours_per_day": 4
+		"hours_per_day": 4,
+		"agreements": [
+			{
+				"contract": "Q-1111",
+				"hours_per_day": 4
+			},
+			{
+				"contract": "Q-2222",
+				"hours_per_day": 5
+			}
+		]
 	}
 ]
