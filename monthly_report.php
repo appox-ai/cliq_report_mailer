@@ -23,60 +23,62 @@ function getRecords($startDate, $endDate) {
     // Get users
     $users = json_decode(file_get_contents('users.json'), true);
 
-    // Get all agreements
-    $agreements = json_decode(file_get_contents('agreements.json'), true);
+    $contractCodes = [];
+    foreach ($users as $user) {
+        if(!isset($user['agreements'])) {
+            continue;
+        }
+        foreach ($user['agreements'] as $user_contract) {
+            $contractCodes[] = $user_contract['contract'];
+        }
+    }
 
-    foreach ($agreements as $agreement) {
-        // Process only current agreements
-        if( $startDate <= $agreement['endDate'] && $endDate >= $agreement['startDate']){
+    $contractCodes = array_unique($contractCodes);
 
-            foreach ($users as $user) {
-                if(!isset($user['agreements'])) {
-                    continue;
-                }
+    foreach ($contractCodes as $agreement) {
 
-                foreach ($user['agreements'] as $user_contract) {
-                    // User belongs to this agreement
-                    if($user_contract['contract'] === $agreement['contract']) {
-
-                        $userRecords = array_filter($records, function($row) use ($user) {
-                            return $row[1] === $user['name'];
-                        });
-
-                        $hours = 0;
-                        $days = 0;
-                        $previousRecordDate = null;
-
-                        foreach ($userRecords as $row) {
-
-                            // skip header row from csv data
-                            if($row[0] === 'UID') {
-                                continue;
-                            }
-                            
-                            if($row[2] >= $startDate && $row[2] <= $endDate && $row[1] === $user['name']) {
-                                if($previousRecordDate === $row[2]) continue;
-
-                                if( date('l', strtotime($row[2])) != "Saturday" && date('l', strtotime($row[2])) != "Sunday") {
-                                    $hours += $user_contract['hours_per_day'];
-                                    $days++;
-                                }
-                            }
-                            $previousRecordDate = $row[2];
-                        }
-                       
-                        $spreadSheetContent[] = [
-                            'User' => $user['name'],
-                            'Contract' => $user_contract['contract'],
-                            'hours_per_day' => $user_contract['hours_per_day'],
-                            'days' => (string)$days,
-                            'Hours' => (string)$hours
-                        ];
-
-                    }
-                }
- 
+        foreach ($users as $user) {
+            if(!isset($user['agreements'])) {
+                continue;
             }
+
+            foreach ($user['agreements'] as $user_contract) {
+                // User belongs to this agreement
+                if($user_contract['contract'] === $agreement) {
+
+                    $userRecords = array_filter($records, function($row) use ($user) {
+                        return $row[1] === $user['name'];
+                    });
+
+                    $hours = 0;
+                    $days = 0;
+                    $previousRecordDate = null;
+
+                    foreach ($userRecords as $row) {
+
+                        if($row[2] >= $user_contract['start_date'] && $row[2] <= $user_contract['end_date'] 
+                        && $row[2] >= $startDate && $row[2] <= $endDate) {  // -> ERROR
+                            if($previousRecordDate === $row[2]) continue;
+
+                            if( date('l', strtotime($row[2])) != "Saturday" && date('l', strtotime($row[2])) != "Sunday") {
+                                $hours += $user_contract['hours_per_day'];
+                                $days++;
+                            }
+                        }
+                        $previousRecordDate = $row[2];
+                    }
+                    
+                    $spreadSheetContent[] = [
+                        'User' => $user['name'],
+                        'Contract' => $user_contract['contract'],
+                        'hours_per_day' => $user_contract['hours_per_day'],
+                        'days' => (string)$days,
+                        'Hours' => (string)$hours
+                    ];
+
+                }
+            }
+
         }
     }
     return $spreadSheetContent;
