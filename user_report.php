@@ -13,16 +13,18 @@ if (!file_exists('input/' . $file_name)) {
   mailer("support@appox.ai", $subject, $bodyMail, $conf['mailUsername'], $conf['mailPassword'], $conf['mailHost'],"");
   exit;
 }
-  
 $cliq_data = file('input/' . $file_name);
 $data = [];
 foreach ($cliq_data as $line) {
   $data[] = str_getcsv($line);
-}
+  }
 
 // Get users
-$usersdata = file_get_contents('users.json');
-$users = json_decode($usersdata, false);
+$users = [];
+$files = glob('users/*.json');
+foreach ($files as $file) {
+    $users[] = array_merge([], json_decode(file_get_contents($file), true));
+}
 
 // Consolidate report for each user
 foreach ($users as $user) {

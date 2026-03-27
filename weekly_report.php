@@ -23,7 +23,12 @@ function getRecords($startDate, $last_saturday) {
     }
     
     // find records for each user between last two weeks
-    $users = json_decode(file_get_contents('users.json'), true);
+    $users = [];
+    $files = glob('users/*.json');
+    foreach ($files as $file) {
+        $users[] = array_merge([], json_decode(file_get_contents($file), true));
+    }
+
     foreach ($users as $user) {
         if(!isset($user['id'])) {
             continue;
@@ -38,16 +43,10 @@ function getRecords($startDate, $last_saturday) {
 
         foreach ($userRecords as $row) {
 
-            // skip header row
-            if($row[0] === 'UID') {
-                continue;
-            }
-            
             if($row[2] >= $startDate && $row[2] <= $last_saturday && $row[1] === $user['name']) {
                 if($previousRecordDate === $row[2]) continue;
 
                 if( date('l', strtotime($row[2])) != "Saturday" && date('l', strtotime($row[2])) != "Sunday") {
-                    // var_dump(date('l', strtotime($row[2])));
                     $hours += $user['hours_per_day'];
                 }
             }
@@ -69,7 +68,7 @@ function getRecords($startDate, $last_saturday) {
                     }
                 }
                 if(!$checked) {
-                    $notes .= $i.', ';
+                    $notes .= date('d', strtotime($i)).', ';
                 }
             }
         } else {
@@ -190,7 +189,6 @@ function main($conf) {
     fclose($fp);
 
     if ($new === 0) {
-        // Do nothing, script will exit
         exit; 
     }
 
@@ -213,7 +211,8 @@ function main($conf) {
         <p>&Agrave; bient&ocirc;t,</p>
         <p>App<b>OX</b> <i>People</i></p>
     </div>";
-    mailer("jcatano@appox.ai", $subject, $bodyMail, $conf['mailUsername'], $conf['mailPassword'], $conf['mailHost'], $filename);
+    mailer("finance@appox.ai", $subject, $bodyMail, $conf['mailUsername'], $conf['mailPassword'], $conf['mailHost'], $filename);
 }
 
 main($conf);
+?>

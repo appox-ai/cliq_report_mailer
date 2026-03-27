@@ -12,3 +12,4 @@ composer.lock
 input/
 monthly_output/
 biweekly_output/
+users/

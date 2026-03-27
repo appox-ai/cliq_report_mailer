@@ -20,8 +20,11 @@ function getRecords($startDate, $endDate) {
         $records[] = str_getcsv($line);
     }
 
-    // Get users
-    $users = json_decode(file_get_contents('users.json'), true);
+    $users = [];
+    $files = glob('users/*.json');
+    foreach ($files as $file) {
+        $users[] = array_merge([], json_decode(file_get_contents($file), true));
+    }
 
     $contractCodes = [];
     foreach ($users as $user) {
@@ -56,8 +59,12 @@ function getRecords($startDate, $endDate) {
 
                     foreach ($userRecords as $row) {
 
-                        if($row[2] >= $user_contract['start_date'] && $row[2] <= $user_contract['end_date'] 
-                        && $row[2] >= $startDate && $row[2] <= $endDate) {  // -> ERROR
+                        if(
+                            $row[2] >= $user_contract['start_date'] 
+                            && $row[2] <= $user_contract['end_date'] 
+                            && $row[2] >= $startDate 
+                            && $row[2] <= $endDate
+                        ) {
                             if($previousRecordDate === $row[2]) continue;
 
                             if( date('l', strtotime($row[2])) != "Saturday" && date('l', strtotime($row[2])) != "Sunday") {
@@ -192,3 +199,4 @@ function main() {
 }
 
 main();
+?>
