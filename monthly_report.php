@@ -1,4 +1,6 @@
 <?php
+include 'config.php';
+include 'mailer.php';
 require 'vendor/autoload.php';
 
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
@@ -75,12 +77,49 @@ function getRecords($startDate, $endDate) {
                         $previousRecordDate = $row[2];
                     }
                     
+                    // Calculate working days
+                    $workingDays = 0;
+                    $start_Working_Date = $user_contract['start_date'] >= $startDate ? $user_contract['start_date'] : $startDate;
+                    $end_Working_Date = $user_contract['end_date'] <= $endDate ? $user_contract['end_date'] : $endDate;
+                    for($date = $start_Working_Date; $date <= $end_Working_Date; $date = date('Y-m-d', strtotime($date . ' +1 day'))) {
+                        if(date('l', strtotime($date)) != "Saturday" && date('l', strtotime($date)) != "Sunday") {
+                            $workingDays++;
+                        }
+                    }
+
+                    // check if there are missed days
+                    if($days !=  $workingDays) {
+                        $notes = 'Days: ' . $days . ' (expected: ' . $workingDays . '). ';
+                        $notes .= 'Missed days: ';
+                        for($i = $start_Working_Date; $i <= $end_Working_Date; $i = date('Y-m-d', strtotime($i . ' +1 day'))) {
+                            if(date('l', strtotime($i)) == "Saturday" || date('l', strtotime($i)) == "Sunday") continue;
+
+                            $checked = false;
+                            foreach ($userRecords as $row) {
+                                if($row[2] === $i
+                                && $row[2] >= $user_contract['start_date'] 
+                                && $row[2] <= $user_contract['end_date'] 
+                                && $row[2] >= $startDate 
+                                && $row[2] <= $endDate) {
+                                    $checked = true;
+                                    break;
+                                }
+                            }
+                            if(!$checked) {
+                                $notes .= date('d', strtotime($i)).', ';
+                            }
+                        }
+                    } else {
+                        $notes = '';
+                    }
+
                     $spreadSheetContent[] = [
                         'User' => $user['name'],
                         'Contract' => $user_contract['contract'],
                         'hours_per_day' => $user_contract['hours_per_day'],
                         'days' => (string)$days,
-                        'Hours' => (string)$hours
+                        'Hours' => (string)$hours,
+                        'Notes' => $notes
                     ];
 
                 }
@@ -148,11 +187,11 @@ function createSpreadsheet($spreadSheetContent, $startDate, $endDate) {
         ->getAlignment()
         ->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
-    $sheet->getColumnDimension('A')->setWidth(20);
+    $sheet->getColumnDimension('A')->setWidth(30);
     $sheet->getColumnDimension('B')->setWidth(25);
-    $sheet->getColumnDimension('C')->setWidth(20);
-    $sheet->getColumnDimension('D')->setWidth(20);
-    $sheet->getColumnDimension('E')->setWidth(20);
+    $sheet->getColumnDimension('C')->setWidth(15);
+    $sheet->getColumnDimension('D')->setWidth(15);
+    $sheet->getColumnDimension('E')->setWidth(15);
 
     $writer = new Xlsx($spreadsheet);
 
@@ -185,7 +224,7 @@ function getMonthName($month) {
     return $months[$month];
 }
 
-function main() {
+function main($conf) {
     $firstDayOfMonth = date('Y-m-d', strtotime('first day of previous month'));
     $lastDayOfMonth = date('Y-m-d', strtotime('last day of previous month'));
     
@@ -195,8 +234,18 @@ function main() {
     // create spreadsheet
     $filename = createSpreadsheet($spreadsheetContent, $firstDayOfMonth, $lastDayOfMonth);
 
-    return true;
+    // send mail
+    $subject = "Rapport mensuel des temps pour facturation";
+    $bodyMail = "
+    <div style='color: #34495E; padding:10px;'>
+        <h2> Allo,</h2>
+        <p>Veuillez trouver ci-joint votre rapport mensuel des temps, pr&eacute;par&eacute; pour la facturation.</p>
+        <p>&Agrave; bient&ocirc;t,</p>
+        <p>App<b>OX</b> <i>People</i></p>
+    </div>";
+    mailer("jcatano@appox.ai", $subject, $bodyMail, $conf['mailUsername'], $conf['mailPassword'], $conf['mailHost'], $filename);
+
 }
 
-main();
+main($conf);
 ?>
