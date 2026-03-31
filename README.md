@@ -34,19 +34,31 @@ global $conf;
 ?>
 ```
 
-This application get users listed in users.json file to compute reports and send emails. Edit this file to add or remove users assuring that contain only active users. The name parameter must match to the name value in the CSV file that contains the checkin and checkout records.
+This application get users listed in users.json file to compute reports and send emails. Edit this file to add or remove users assuring that contain only active users. The *name* parameter must match to the *name* value in the CSV file that contains the checkin and checkout records.
 
 ```json
 [
 	{
-		"name":"Jorge",
-		"mail":"jorge@mail.com"
+		"name":"Jorge",               // parameter used in user_report.php and is required to match with the name in the CSV file
+		"mail":"jorge@mail.com"       // parameter used in user_report.php and is required
 	},
 	{
 		"name":"Lola",
 		"mail":"lola@mail.com",
-		"id": 1,
-		"hours_per_day": 7
+		"id": 1,                      // parameter used in weekly_report.php and is optional
+		"hours_per_day": 7            // parameter used in weekly_report.php and is optional
+	},
+	{	
+		"name": "Santiago Brochero",  
+		"mail": "sbrochero2@appox.ai",
+		"agreements": [               // parameter used in monthly_report.php and is optional
+			{
+				"contract": "Ciao-RAMQ-20220438",
+				"hours_per_day": 7,
+				"start_date": "2025-06-23",
+				"end_date": "2026-08-06"
+			}
+		]
 	}
 ]
 ```

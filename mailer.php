@@ -27,8 +27,8 @@ function mailer ( $to , $subject , $body , $mailUsername , $mailPassword , $mail
     $mail->Subject = $subject;
     $mail->Body    = $body;
 //  $mail->AltBody = 'This is the body in plain text for non-HTML mail clients';
-    $mail->addAttachment($filename);
-
+    if($filename != "") $mail->addAttachment($filename);
+    
     $mail->send();
   } catch (Exception $e) {
     echo "Mailer Error: ", $mail->ErrorInfo ;

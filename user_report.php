@@ -10,19 +10,21 @@ $file_name = $current_date . '_cliq_snapshot.csv';
 if (!file_exists('input/' . $file_name)) {
   $subject = "Cliq reports: File not found";
   $bodyMail = "File " . $file_name . " not found.<br>Please check if the file exists in the input folder in order to send the reports to the users.";
-  mailer("support@appox.ai", $subject, $bodyMail, $conf['mailUsername'], $conf['mailPassword'], $conf['mailHost']);
+  mailer("support@appox.ai", $subject, $bodyMail, $conf['mailUsername'], $conf['mailPassword'], $conf['mailHost'],"");
   exit;
 }
-  
 $cliq_data = file('input/' . $file_name);
 $data = [];
 foreach ($cliq_data as $line) {
   $data[] = str_getcsv($line);
-}
+  }
 
 // Get users
-$usersdata = file_get_contents('users.json');
-$users = json_decode($usersdata, false);
+$users = [];
+$files = glob('users/*.json');
+foreach ($files as $file) {
+    $users[] = array_merge([], json_decode(file_get_contents($file), true));
+}
 
 // Consolidate report for each user
 foreach ($users as $user) {
@@ -179,9 +181,9 @@ foreach ($users as $user) {
       <p>&Agrave; bient&ocirc;t,</p>
       <p>App<b>OX</b> <i>People</i></p>
   </div>";
-  mailer($user->mail, $subject, $bodyMail, $conf['mailUsername'], $conf['mailPassword'], $conf['mailHost']);
+  mailer($user->mail, $subject, $bodyMail, $conf['mailUsername'], $conf['mailPassword'], $conf['mailHost'],"");
 
-  echo "Alert mail sent \n";
+  echo "Alert: mail sent \n";
 
 }
 ?>
