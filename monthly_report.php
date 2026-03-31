@@ -224,6 +224,17 @@ function getMonthName($month) {
     return $months[$month];
 }
 
+function removeTempFile(){
+    $current_date = date('Y-m-d');
+    $file_name = $current_date . '_cliq_snapshot.csv';
+    $dayOfWeek = date('w', strtotime($current_date));
+
+    // Check if file exists and is not monday (1), then remove it
+    if ($dayOfWeek !== '1' && file_exists('input/' . $file_name)) {
+        unlink('input/' . $file_name);
+    }
+}
+
 function main($conf) {
     $firstDayOfMonth = date('Y-m-d', strtotime('first day of previous month'));
     $lastDayOfMonth = date('Y-m-d', strtotime('last day of previous month'));
@@ -245,6 +256,7 @@ function main($conf) {
     </div>";
     mailer("jcatano@appox.ai", $subject, $bodyMail, $conf['mailUsername'], $conf['mailPassword'], $conf['mailHost'], $filename);
 
+    removeTempFile();
 }
 
 main($conf);
